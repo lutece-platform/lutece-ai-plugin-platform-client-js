@@ -1,0 +1,2323 @@
+/*
+ * lutece-chat widget styles (SPEC §2).
+ *
+ * Imported as ?inline and adopted via a constructable stylesheet — no global CSS
+ * is ever emitted. Design language: the "legacy widget" ambience (blue gradient
+ * #007bff→#0056b3 for the FAB and accents, soft white/#f1f1f1 surfaces, the dark
+ * palette #1D1E20 / user-bg #27282b / text #f0eee9, gentle rgba borders, rounded
+ * corners, slide-up + typing animations, one-dark hljs in dark mode) transposed
+ * onto the modern token architecture (--chat-* on :host, dark tokens via
+ * :host([dark-mode]), ::part, prefers-reduced-motion, container queries).
+ *
+ * Theming surface:
+ *  - tokens are custom properties (--chat-*) on :host, overridable by the host;
+ *  - dark mode resolves through the [dark-mode] host attribute, which swaps the
+ *    surface/text tokens to the legacy dark palette;
+ *  - ::part(...) is exposed on every key zone for external restyling.
+ *
+ * CSS baseline only: native nesting, container queries for the widget's own
+ * responsive behaviour. All motion is gated by prefers-reduced-motion.
+ */
+
+:host {
+  /* Brand — legacy blue gradient */
+  --chat-grad: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  --chat-grad-hover: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  --chat-primary: #0a66d6;
+  --chat-primary-strong: #0056b3;
+  --chat-on-primary: #ffffff;
+  --chat-link: #2563eb;
+
+  /* Action buttons — legacy near-black (send, document, copy hover, avatar active) */
+  --chat-btn-bg: #0f172a;
+  --chat-btn-text: #ffffff;
+
+  /* Surfaces (legacy light) */
+  --chat-bg: #ffffff;
+  --chat-surface: #f1f1f1;
+  --chat-surface-2: #e9ebee;
+  --chat-header-bg: #ffffff;
+  --chat-user-bg: #ffffff;
+  --chat-textarea-bg: #ffffff;
+  --chat-dropdown-bg: #ffffff;
+  --chat-item-active: #f1f1f1;
+  --chat-sidebar-bg: #fafafa;
+  --chat-sidebar-border: rgba(0, 0, 0, 0.04);
+
+  /* Text */
+  --chat-fg: #1f2937;
+  --chat-muted: #5b6675;
+
+  /* Lines (soft rgba like legacy) */
+  --chat-border: rgba(0, 0, 0, 0.08);
+  --chat-border-strong: rgba(0, 0, 0, 0.18);
+
+  /* States */
+  --chat-danger: #ff305d;
+  --chat-danger-soft: #fee2e2;
+  --chat-warning: #ff7b00;
+  --chat-warning-soft: #fff4e5;
+  --chat-success: #10b981;
+  --chat-success-soft: #e7f6ec;
+
+  /* Tags / citations */
+  --chat-tag-bg: #f1f1f1;
+  --chat-tag-text: #1f2937;
+  --chat-tag-border: rgba(0, 0, 0, 0.1);
+
+  /* Code surface (legacy: matches textarea bg, bordered wrapper) */
+  --chat-code-bg: #ffffff;
+  --chat-code-fg: #24292e;
+
+  /* Radii (legacy uses 16px everywhere) */
+  --chat-radius-sm: 6px;
+  --chat-radius: 16px;
+  --chat-radius-lg: 16px;
+  --chat-radius-pill: 999px;
+
+  /* Spacing scale (4px base) */
+  --chat-space-1: 0.25rem;
+  --chat-space-2: 0.5rem;
+  --chat-space-3: 0.75rem;
+  --chat-space-4: 1rem;
+  --chat-space-5: 1.5rem;
+
+  /* Shadows (legacy soft) */
+  --chat-shadow-1: 0 8px 16px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.03);
+  --chat-shadow-2: 0 8px 16px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.03);
+  --chat-shadow-fab: 0 8px 16px rgba(0, 0, 0, 0.18);
+
+  /* Typography */
+  --chat-font: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --chat-font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+  --chat-fs: 0.9375rem;
+
+  /* Motion */
+  --chat-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --chat-ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  display: block;
+  color-scheme: light;
+  font-family: var(--chat-font);
+  font-size: var(--chat-fs);
+  line-height: 1.6;
+  color: var(--chat-fg);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Dark mode — legacy palette (#1D1E20 / user-bg #27282b / text #f0eee9). */
+:host([dark-mode]) {
+  color-scheme: dark;
+
+  --chat-primary: #7fa9ff;
+  --chat-primary-strong: #9cbcff;
+  --chat-on-primary: #0b1220;
+  --chat-link: #3b82f6;
+
+  --chat-btn-bg: #333538;
+  --chat-btn-text: #ffffff;
+
+  --chat-bg: #1d1e20;
+  --chat-surface: #27282b;
+  --chat-surface-2: #333538;
+  --chat-header-bg: #1d1e20;
+  --chat-user-bg: #27282b;
+  --chat-textarea-bg: #212224;
+  --chat-dropdown-bg: #2a2b2d;
+  --chat-item-active: #333538;
+  --chat-sidebar-bg: #191a1b;
+  --chat-sidebar-border: rgba(255, 255, 255, 0.04);
+
+  --chat-fg: #f0eee9;
+  --chat-muted: #9aa6b6;
+
+  --chat-border: rgba(255, 255, 255, 0.08);
+  --chat-border-strong: rgba(255, 255, 255, 0.22);
+
+  --chat-danger: #ff305d;
+  --chat-danger-soft: rgba(125, 55, 55, 0.25);
+  --chat-warning: #ff7b00;
+  --chat-warning-soft: rgba(58, 48, 15, 0.6);
+  --chat-success: #10b981;
+  --chat-success-soft: rgba(20, 53, 36, 0.6);
+
+  --chat-tag-bg: #2a2b2d;
+  --chat-tag-text: #f0eee9;
+  --chat-tag-border: rgba(255, 255, 255, 0.1);
+
+  --chat-code-bg: #212224;
+  --chat-code-fg: #e6edf3;
+
+  --chat-shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.lc-icon {
+  flex: 0 0 auto;
+}
+
+/* ----- Layout shell -----
+ *
+ * Legacy layout: the sidebar is a full-height absolute column on the inline-start
+ * edge of the root, and the header lives INSIDE the content column (header +
+ * thread + composer). The root is the positioning context; the content column
+ * slides via margin-inline-start when the sidebar pushes it (roomy view), or
+ * stays put while the sidebar overlays it (narrow / floating non-fullscreen).
+ */
+
+.lc-root {
+  position: relative;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: hidden;
+  background: var(--chat-bg);
+  color: var(--chat-fg);
+  container-type: inline-size;
+  container-name: chat;
+}
+
+.lc-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-block-size: 0;
+  margin-inline-start: 0;
+  background: var(--chat-bg);
+  transition: margin-inline-start 0.35s var(--chat-ease);
+}
+
+.lc-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.lc-scroll {
+  flex: 1;
+  overflow: auto;
+  min-block-size: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--chat-surface) transparent;
+}
+
+.lc-header-slot:empty {
+  display: none;
+}
+
+/* WebKit scrollbars (Firefox uses scrollbar-width/color above). */
+.lc-scroll::-webkit-scrollbar,
+.lc-sidebar__list::-webkit-scrollbar,
+.lc-composer textarea::-webkit-scrollbar,
+.lc-user__dropdown::-webkit-scrollbar,
+.lc-docview::-webkit-scrollbar,
+.lc-modal::-webkit-scrollbar,
+.lc-notif__pre::-webkit-scrollbar {
+  inline-size: 6px;
+  block-size: 6px;
+}
+
+.lc-scroll::-webkit-scrollbar-thumb,
+.lc-sidebar__list::-webkit-scrollbar-thumb,
+.lc-composer textarea::-webkit-scrollbar-thumb,
+.lc-user__dropdown::-webkit-scrollbar-thumb,
+.lc-docview::-webkit-scrollbar-thumb,
+.lc-modal::-webkit-scrollbar-thumb,
+.lc-notif__pre::-webkit-scrollbar-thumb {
+  background: var(--chat-surface);
+  border-radius: 8px;
+}
+
+.lc-scroll::-webkit-scrollbar-track,
+.lc-sidebar__list::-webkit-scrollbar-track,
+.lc-composer textarea::-webkit-scrollbar-track,
+.lc-user__dropdown::-webkit-scrollbar-track,
+.lc-docview::-webkit-scrollbar-track,
+.lc-modal::-webkit-scrollbar-track,
+.lc-notif__pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ----- Controls baseline ----- */
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  margin: 0;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--chat-link);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--chat-primary);
+  outline-offset: 2px;
+  border-radius: var(--chat-radius-sm);
+}
+
+.lc-icon-btn,
+.lc-hd button:not(.lc-user__btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--chat-space-3);
+  border: 0;
+  border-radius: var(--chat-radius);
+  background: transparent;
+  color: var(--chat-fg);
+  transition: background 0.25s var(--chat-ease), color 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-surface);
+    transform: translateY(-2px);
+  }
+}
+
+/* ----- Header ----- */
+
+.lc-hd {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-1);
+  padding: 1.25rem 1.25rem 0.25rem;
+  background: var(--chat-header-bg);
+}
+
+.lc-hd__left,
+.lc-hd__right {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-1);
+  min-inline-size: 0;
+}
+
+.lc-hd__spacer {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+/* ----- Gallery ----- */
+
+.lc-gallery {
+  max-inline-size: 1000px;
+  margin-inline: auto;
+  padding: var(--chat-space-5);
+}
+
+.lc-gallery__title {
+  margin: 0 0 var(--chat-space-5);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.lc-gallery__search {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  padding: var(--chat-space-3) var(--chat-space-4);
+  border: 1px solid var(--chat-border);
+  border-radius: calc(var(--chat-radius) * 1.2);
+  margin-block-end: var(--chat-space-5);
+  color: var(--chat-muted);
+  background: var(--chat-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.25s var(--chat-ease), box-shadow 0.25s var(--chat-ease);
+
+  &:focus-within {
+    border-color: var(--chat-btn-bg);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.lc-gallery__search input {
+  flex: 1;
+  min-inline-size: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+/* Modal / non-fullscreen: a single column (legacy default in the narrow panel). */
+.lc-gallery__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--chat-space-4);
+}
+
+/* Fullscreen: a three-column grid (legacy .fullscreen .lutece-chatbots-grid),
+ * collapsing to two then one as the container narrows. */
+:host([fullscreen]) .lc-gallery__grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--chat-space-5);
+  margin-block-start: var(--chat-space-5);
+}
+
+@container chat (max-width: 1200px) {
+  :host([fullscreen]) .lc-gallery__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container chat (max-width: 768px) {
+  :host([fullscreen]) .lc-gallery__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fullscreen gallery: wider container and a fixed-width search box; cards become
+ * centred full-height columns (legacy .fullscreen .lutece-chatbots-*). */
+:host([fullscreen]) .lc-gallery {
+  max-inline-size: 1200px;
+}
+
+:host([fullscreen]) .lc-gallery__search {
+  inline-size: 350px;
+}
+
+:host([fullscreen]) .lc-card {
+  block-size: 100%;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+:host([fullscreen]) .lc-card__desc {
+  max-inline-size: 85%;
+  white-space: normal;
+}
+
+.lc-card {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-4);
+  padding: var(--chat-space-4) var(--chat-space-5);
+  inline-size: 100%;
+  text-align: start;
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius-lg);
+  background: var(--chat-user-bg);
+  transition: transform 0.25s var(--chat-ease), box-shadow 0.25s var(--chat-ease);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--chat-shadow-1);
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}
+
+.lc-card__avatar {
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.lc-card__avatar--mono {
+  display: grid;
+  place-items: center;
+  background: var(--chat-surface);
+  color: var(--chat-fg);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.lc-card__text {
+  min-inline-size: 0;
+  flex: 1;
+}
+
+.lc-card__name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-card__desc {
+  margin-block-start: 0.1rem;
+  font-size: 0.85rem;
+  color: var(--chat-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----- Sidebar (full-height column) -----
+ *
+ * Legacy behaviour: a 280px full-height panel anchored on the inline-start edge,
+ * collapsed off-screen (inset-inline-start: -280px) and slid into view by the
+ * `sidebar-open` host attribute (driven by the header hamburger). It always
+ * spans the entire root height (above the content column, sibling of it). In a
+ * roomy view (embedded / fullscreen) opening it pushes the content column via
+ * margin-inline-start; in a narrow / floating non-fullscreen panel it overlays
+ * the content with a dimmed, clickable backdrop and the column does not move.
+ */
+
+.lc-sidebar-slot {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(-1 * var(--chat-sidebar-width, 280px));
+  inline-size: var(--chat-sidebar-width, 280px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-sidebar-bg);
+  border-inline-end: 1px solid var(--chat-sidebar-border);
+  overflow: hidden;
+  transition: inset-inline-start 0.35s var(--chat-ease);
+}
+
+.lc-sidebar-slot:empty {
+  display: none;
+}
+
+.lc-sidebar {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-block-size: 0;
+}
+
+/* Sidebar close button: hidden by default (push mode keeps the hamburger reachable),
+ * shown only in overlay mode where the full-width sidebar covers the header. */
+.lc-sidebar__close {
+  display: none;
+  position: absolute;
+  inset-block-start: 0.85rem;
+  inset-inline-end: 0.85rem;
+  inline-size: 35px;
+  block-size: 35px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--chat-color);
+  cursor: pointer;
+  transition: var(--chat-transition, all 0.25s ease);
+  z-index: 1;
+}
+
+.lc-sidebar__close:hover {
+  background: var(--chat-second-bg);
+}
+
+:host([sidebar-open]) .lc-sidebar-slot {
+  inset-inline-start: 0;
+}
+
+/* Roomy view → the open sidebar pushes the content column aside. */
+:host([sidebar-open]) .lc-content {
+  margin-inline-start: var(--chat-sidebar-width, 280px);
+}
+
+/* A floating, fullscreen panel always has room → always push (never overlay),
+ * regardless of the container width measured at first paint. */
+:host([floating][fullscreen][sidebar-open]) .lc-content {
+  margin-inline-start: var(--chat-sidebar-width, 280px);
+}
+
+:host([floating][fullscreen][sidebar-open]) .lc-sidebar-slot {
+  --chat-sidebar-width: 280px;
+  box-shadow: none;
+}
+
+:host([floating][fullscreen][sidebar-open]) .lc-sidebar-overlay {
+  display: none;
+}
+
+/* Dimmed clickable backdrop, only while the sidebar is an overlay. */
+.lc-sidebar-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: lc-fade 0.35s var(--chat-ease-spring);
+}
+
+.lc-sidebar__explore,
+.lc-sidebar__delete-all {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-3);
+  inline-size: 100%;
+  padding: var(--chat-space-3) var(--chat-space-4);
+  border: 0;
+  background: transparent;
+  text-align: start;
+  color: var(--chat-fg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--chat-radius);
+  transition: background 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-surface);
+    transform: translateX(4px);
+  }
+}
+
+.lc-sidebar__explore {
+  margin: var(--chat-space-3);
+  margin-block-end: 0;
+  inline-size: auto;
+  font-weight: 600;
+}
+
+.lc-sidebar__delete-all {
+  margin: var(--chat-space-3);
+  inline-size: auto;
+  justify-content: center;
+  border: 1px solid var(--chat-border);
+  color: var(--chat-danger);
+
+  &:hover {
+    background: transparent;
+    transform: translateY(-2px);
+  }
+}
+
+.lc-sidebar__footer {
+  margin-block-start: auto;
+  padding-block-start: var(--chat-space-2);
+  border-block-start: 1px solid var(--chat-border);
+}
+
+.lc-sidebar__list {
+  flex: 1;
+  overflow: auto;
+  padding: var(--chat-space-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--chat-surface) transparent;
+}
+
+.lc-conv {
+  display: flex;
+  align-items: center;
+  border-radius: var(--chat-radius);
+  margin-block-end: var(--chat-space-1);
+  transition: background 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-surface);
+    transform: translateX(6px);
+  }
+
+  &.is-active {
+    background: var(--chat-item-active);
+  }
+}
+
+.lc-conv__open {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.1rem;
+  padding: var(--chat-space-3);
+  border: 0;
+  background: transparent;
+  min-inline-size: 0;
+  text-align: start;
+}
+
+.lc-conv__name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-conv__preview {
+  font-size: 0.8rem;
+  color: var(--chat-muted);
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-conv__delete {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  padding: var(--chat-space-2);
+  color: var(--chat-muted);
+  border-radius: var(--chat-radius);
+  opacity: 0.6;
+  transition: opacity 0.25s var(--chat-ease), color 0.25s var(--chat-ease), background 0.25s var(--chat-ease);
+
+  &:hover {
+    opacity: 1;
+    color: var(--chat-danger);
+    background: var(--chat-surface);
+  }
+}
+
+.lc-sidebar__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--chat-space-2);
+  padding: 2.5rem var(--chat-space-4);
+  color: var(--chat-muted);
+  opacity: 0.6;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* ----- Thread + messages ----- */
+
+.lc-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-space-2);
+  inline-size: 100%;
+  max-inline-size: 1000px;
+  margin-inline: auto;
+  padding: var(--chat-space-5);
+  min-block-size: 100%;
+}
+
+.lc-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2rem 1rem 0;
+  text-align: center;
+}
+
+.lc-welcome__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: 64px;
+  block-size: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+
+  & img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+}
+
+.lc-welcome__title {
+  margin: 0;
+  color: var(--chat-fg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.lc-welcome__desc {
+  margin: 0.25rem 0 0;
+  color: var(--chat-fg);
+  opacity: 0.8;
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.lc-msg {
+  max-inline-size: 80%;
+  padding: var(--chat-space-4) var(--chat-space-5);
+  border-radius: var(--chat-radius-lg);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  animation: lc-msg-appear 0.4s var(--chat-ease-spring) forwards;
+}
+
+.lc-msg--user {
+  align-self: flex-end;
+  background: var(--chat-user-bg);
+  color: var(--chat-fg);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius-lg) var(--chat-radius-lg) 0 var(--chat-radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.lc-msg--bot {
+  align-self: flex-start;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  background: var(--chat-header-bg);
+  color: var(--chat-fg);
+  border-radius: var(--chat-radius-lg) var(--chat-radius-lg) var(--chat-radius-lg) 0;
+  padding-inline: 0;
+}
+
+.lc-msg--error {
+  align-self: stretch;
+  max-inline-size: 100%;
+  background: var(--chat-danger-soft);
+  color: var(--chat-danger);
+  border: 1px solid var(--chat-danger);
+}
+
+/* Markdown body rendered by render/markdown.js */
+.lc-msg__body {
+  &:first-child {
+    margin-block-start: 0;
+  }
+
+  & > :first-child {
+    margin-block-start: 0;
+  }
+
+  & > :last-child {
+    margin-block-end: 0;
+  }
+
+  & p {
+    margin: 0 0 var(--chat-space-3);
+    line-height: 1.7;
+  }
+
+  & h1,
+  & h2,
+  & h3,
+  & h4 {
+    margin: var(--chat-space-4) 0 var(--chat-space-2);
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  & h1 {
+    font-size: 1.2em;
+  }
+
+  & h2 {
+    font-size: 1.1em;
+  }
+
+  & h3 {
+    font-size: 1em;
+  }
+
+  & ul,
+  & ol {
+    margin: var(--chat-space-3) 0 var(--chat-space-3) 1.4em;
+    padding-inline-start: 1em;
+  }
+
+  & li {
+    margin-block: 0.35rem;
+    line-height: 1.6;
+  }
+
+  & a {
+    color: var(--chat-link);
+    text-decoration: none;
+    border-block-end: 1px dotted var(--chat-link);
+
+    &:hover {
+      border-block-end: 1px solid var(--chat-link);
+    }
+  }
+
+  & code {
+    font-family: var(--chat-font-mono);
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
+    border-radius: 5px;
+    background: var(--chat-surface);
+  }
+
+  & blockquote {
+    margin: var(--chat-space-3) 0;
+    padding: var(--chat-space-3) var(--chat-space-5);
+    border-inline-start: 3px solid var(--chat-primary);
+    background: var(--chat-surface);
+    border-radius: 0 var(--chat-radius) var(--chat-radius) 0;
+    color: var(--chat-fg);
+  }
+
+  & table {
+    border-collapse: separate;
+    border-spacing: 0;
+    inline-size: 100%;
+    margin: var(--chat-space-3) 0;
+    border: 1px solid var(--chat-border);
+    border-radius: var(--chat-radius);
+    overflow: hidden;
+    font-size: 0.9em;
+  }
+
+  & th,
+  & td {
+    border-block-end: 1px solid var(--chat-border);
+    border-inline-end: 1px solid var(--chat-border);
+    padding: var(--chat-space-3);
+    text-align: start;
+  }
+
+  & th:last-child,
+  & td:last-child {
+    border-inline-end: 0;
+  }
+
+  & tr:last-child td {
+    border-block-end: 0;
+  }
+
+  & th {
+    background: var(--chat-surface);
+    font-weight: 600;
+  }
+
+  & hr {
+    border: none;
+    border-block-start: 1px solid var(--chat-border);
+    margin: var(--chat-space-5) 0;
+  }
+
+  & img {
+    max-inline-size: 100%;
+    border-radius: var(--chat-radius);
+    margin: var(--chat-space-3) 0;
+  }
+}
+
+.lc-msg__body pre {
+  position: relative;
+  overflow: auto;
+  margin: var(--chat-space-3) 0;
+  padding: var(--chat-space-5);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+  background: var(--chat-code-bg);
+  scrollbar-width: thin;
+
+  & code {
+    padding: 0;
+    background: transparent;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: inherit;
+  }
+}
+
+.lc-code-copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  padding: var(--chat-space-2) var(--chat-space-3);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+  background: var(--chat-bg);
+  color: var(--chat-fg);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: background 0.25s var(--chat-ease), color 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+    background: var(--chat-btn-bg);
+    color: var(--chat-btn-text);
+    border-color: var(--chat-btn-bg);
+    transform: translateY(-2px);
+  }
+}
+
+.lc-msg--user .lc-msg__body code {
+  background: var(--chat-surface-2);
+}
+
+.lc-citation {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: var(--chat-link);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  vertical-align: baseline;
+  cursor: pointer;
+  transition: opacity 0.2s var(--chat-ease);
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+}
+
+/* ----- Notifications (datasets / tools) ----- */
+
+.lc-msg__notifs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--chat-space-2);
+  margin-block-end: var(--chat-space-2);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.lc-notif {
+  font-size: 0.8rem;
+  border-radius: var(--chat-radius);
+  color: var(--chat-fg);
+  overflow: hidden;
+  animation: lc-fade 0.3s var(--chat-ease);
+}
+
+.lc-notif--datasets {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  color: var(--chat-fg);
+  opacity: 0.8;
+
+  & .lc-icon {
+    color: var(--chat-link);
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.lc-notif__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--chat-border);
+  border-radius: 8px;
+  background: transparent;
+  text-align: start;
+  color: var(--chat-fg);
+  opacity: 0.8;
+  transition: opacity 0.25s var(--chat-ease), background 0.25s var(--chat-ease);
+
+  & .lc-icon:first-child {
+    color: var(--chat-link);
+  }
+
+  &:hover {
+    opacity: 1;
+    background: var(--chat-surface);
+  }
+
+  & .lc-icon:last-child {
+    transition: transform 0.2s ease;
+    opacity: 0.6;
+  }
+
+  &[aria-expanded="true"] .lc-icon:last-child {
+    transform: rotate(180deg);
+  }
+}
+
+.lc-notif__status {
+  margin-inline-start: 4px;
+  color: var(--chat-link);
+  font-weight: 600;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-notif[data-status="done"] .lc-notif__status {
+  color: var(--chat-success);
+}
+
+.lc-notif[data-status="failed"] {
+  & .lc-notif__toggle {
+    border-color: var(--chat-danger);
+  }
+
+  & .lc-notif__status {
+    color: var(--chat-danger);
+  }
+}
+
+.lc-notif--datasets .lc-icon:first-child,
+.lc-notif--tool .lc-notif__toggle .lc-icon:first-child {
+  color: var(--chat-success);
+}
+
+.lc-notif__details {
+  padding: 10px 12px 12px;
+  margin-block-start: 5px;
+  border-block-start: 1px solid var(--chat-border);
+  animation: lc-expand 0.25s ease-out;
+}
+
+.lc-notif__spinner {
+  inline-size: 14px;
+  block-size: 14px;
+  border: 2px solid var(--chat-border);
+  border-block-start-color: var(--chat-primary);
+  border-radius: 50%;
+  animation: lc-spin 0.8s linear infinite;
+}
+
+.lc-notif[data-status="done"] .lc-notif__spinner,
+.lc-notif[data-status="failed"] .lc-notif__spinner {
+  display: none;
+}
+
+@keyframes lc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lc-notif__pre {
+  margin: var(--chat-space-1) 0 0;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--chat-font-mono);
+  font-size: 0.72rem;
+  background: var(--chat-surface);
+  border-radius: 8px;
+  max-block-size: 12.5rem;
+  overflow: auto;
+  opacity: 0.9;
+}
+
+/* ----- Typing indicator + streaming caret ----- */
+
+.lc-typing {
+  display: inline-flex;
+  gap: 5px;
+  padding: 0 10px;
+}
+
+.lc-typing span {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: var(--chat-fg);
+  opacity: 0.7;
+  animation: lc-typing 1.4s infinite var(--chat-ease-spring);
+}
+
+.lc-typing span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.lc-typing span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.lc-caret {
+  display: inline-block;
+  margin-inline-start: 0.1em;
+  color: var(--chat-primary);
+  font-size: 0.7em;
+  line-height: 1;
+  vertical-align: baseline;
+  animation: lc-caret 1s steps(1) infinite;
+}
+
+@keyframes lc-typing {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+@keyframes lc-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ----- Feedback ----- */
+
+.lc-fb {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--chat-space-1);
+  order: 1;
+}
+
+.lc-fb button {
+  display: inline-flex;
+  border: 0;
+  background: transparent;
+  padding: var(--chat-space-1);
+  border-radius: var(--chat-radius-sm);
+  color: var(--chat-fg);
+  opacity: 0.7;
+  transition: opacity 0.25s var(--chat-ease), color 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover:not(:disabled) {
+    opacity: 1;
+    color: var(--chat-link);
+    transform: translateY(-2px);
+  }
+
+  &.is-active {
+    opacity: 1;
+    color: var(--chat-primary);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+}
+
+.lc-fb__check {
+  display: inline-flex;
+  color: var(--chat-success);
+}
+
+.lc-fb__comment-text {
+  flex-basis: 100%;
+  margin-block-start: var(--chat-space-1);
+  padding: var(--chat-space-3);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--chat-fg);
+  opacity: 0.8;
+  background: var(--chat-surface);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+}
+
+.lc-fb__textarea {
+  inline-size: 100%;
+  min-block-size: 6rem;
+  resize: vertical;
+  padding: var(--chat-space-3);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+  background: var(--chat-bg);
+
+  &:focus {
+    border-color: var(--chat-border-strong);
+    outline: none;
+  }
+}
+
+.lc-fb__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: var(--chat-space-3);
+}
+
+.lc-fb__submit {
+  padding: var(--chat-space-3) var(--chat-space-5);
+  border: 0;
+  border-radius: var(--chat-radius);
+  background: var(--chat-grad);
+  color: #ffffff;
+  font-weight: 600;
+  transition: transform 0.25s var(--chat-ease), background 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-grad-hover);
+    transform: translateY(-2px);
+  }
+}
+
+/* ----- Composer ----- */
+
+/* External sticky wrapper (legacy .lutece-chat-input): pins the composer to the
+ * bottom of the panel, gives the integrated translucent backdrop and the bottom
+ * padding that spaces the pill from the panel edge. */
+.lc-input {
+  position: sticky;
+  inset-block-end: 0;
+  inline-size: 100%;
+  padding: 0.5rem 1.25rem 1.25rem;
+  background: var(--chat-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* The bordered pill (legacy .lutece-chat-input-container): the padding of the
+ * external .lc-input wrapper handles its spacing, so it carries no margin-block. */
+.lc-composer {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 1000px;
+  margin-inline: auto;
+  border: 1px solid var(--chat-border);
+  border-radius: calc(var(--chat-radius-lg) * 1.5);
+  background: var(--chat-textarea-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--chat-border-strong);
+  }
+}
+
+/* The input row inside the bordered wrapper: textarea + the absolute send button. */
+.lc-composer__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lc-composer-slot:empty {
+  display: none;
+}
+
+.lc-composer textarea {
+  flex: 1;
+  min-inline-size: 0;
+  resize: none;
+  max-block-size: 300px;
+  padding: 1rem 1.25rem;
+  padding-inline-end: 3.5rem;
+  border: 0;
+  background: transparent;
+  line-height: 1.4;
+  scrollbar-width: thin;
+
+  &::placeholder {
+    color: var(--chat-muted);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.lc-composer__send {
+  position: absolute;
+  inset-inline-end: 10px;
+  margin: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: 34px;
+  block-size: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chat-btn-bg);
+  color: var(--chat-btn-text);
+  transition: transform 0.25s var(--chat-ease), opacity 0.25s var(--chat-ease), box-shadow 0.25s var(--chat-ease);
+
+  &:hover:not(:disabled) {
+    opacity: 0.95;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* ----- Rate-limit gauge ----- */
+
+/* ----- Modals ----- */
+
+.lc-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--chat-space-4);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: lc-fade 0.2s ease-out;
+}
+
+.lc-modal {
+  inline-size: min(700px, 90%);
+  max-block-size: 86vh;
+  overflow: auto;
+  background: var(--chat-bg);
+  color: var(--chat-fg);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius-lg);
+  padding: var(--chat-space-5);
+  box-shadow: var(--chat-shadow-2);
+  scrollbar-width: thin;
+  animation: lc-modal-in 0.3s var(--chat-ease-spring);
+}
+
+.lc-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--chat-space-2);
+  margin-block-end: var(--chat-space-4);
+}
+
+.lc-modal__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.lc-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 0;
+  border-radius: var(--chat-radius-sm);
+  background: transparent;
+  color: var(--chat-fg);
+  opacity: 0.7;
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: background 0.25s var(--chat-ease), opacity 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-surface);
+    opacity: 1;
+  }
+}
+
+.lc-modal__body {
+  min-block-size: 0;
+}
+
+/* ----- Source modal ----- */
+
+.lc-source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-space-3);
+}
+
+.lc-source__dataset {
+  font-size: 0.8rem;
+  color: var(--chat-muted);
+}
+
+.lc-source__text {
+  padding: var(--chat-space-4);
+  border-inline-start: 3px solid var(--chat-primary);
+  background: var(--chat-surface);
+  border-radius: 0 var(--chat-radius) var(--chat-radius) 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.lc-source__open-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chat-space-3);
+  align-self: start;
+  padding: var(--chat-space-3) var(--chat-space-5);
+  border: 0;
+  border-radius: var(--chat-radius);
+  background: var(--chat-btn-bg);
+  color: var(--chat-btn-text);
+  font-weight: 500;
+  transition: transform 0.25s var(--chat-ease), opacity 0.25s var(--chat-ease);
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+}
+
+/* ----- Document viewer ----- */
+
+.lc-docview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-space-3);
+}
+
+.lc-docview__md {
+  & > :first-child {
+    margin-block-start: 0;
+  }
+
+  & pre {
+    overflow: auto;
+    padding: var(--chat-space-4);
+    border-radius: var(--chat-radius);
+    background: var(--chat-code-bg);
+  }
+}
+
+.lc-docview__pdf {
+  inline-size: 100%;
+  block-size: 60vh;
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+}
+
+.lc-docview__text {
+  margin: 0;
+  padding: var(--chat-space-4);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--chat-font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  background: var(--chat-surface);
+  border-radius: var(--chat-radius);
+}
+
+.lc-docview__download {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chat-space-3);
+  align-self: start;
+  padding: var(--chat-space-3) var(--chat-space-5);
+  border-radius: var(--chat-radius);
+  background: var(--chat-btn-bg);
+  color: var(--chat-btn-text);
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform 0.25s var(--chat-ease), opacity 0.25s var(--chat-ease);
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-3px);
+  }
+}
+
+/* ----- Error / empty screens (legacy .lutece-chat-unavailable) -----
+ *
+ * The screen fills the main region and centres its content block both axes. The
+ * inner stack (large icon + title + message + retry) is capped at 400px and
+ * centred. The icon is large (4rem) and dimmed; for the danger kinds
+ * (unauthorized / forbidden / rate-limited) it takes the danger stroke.
+ */
+
+.lc-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--chat-space-2);
+  block-size: 100%;
+  min-block-size: 400px;
+  max-inline-size: 400px;
+  margin-inline: auto;
+  padding: 2rem;
+  text-align: center;
+  color: var(--chat-fg);
+}
+
+.lc-error .lc-icon {
+  inline-size: 4rem;
+  block-size: 4rem;
+  color: var(--chat-muted);
+  opacity: 0.6;
+}
+
+.lc-error[data-kind="unauthorized"] .lc-icon,
+.lc-error[data-kind="forbidden"] .lc-icon,
+.lc-error[data-kind="rate-limited"] .lc-icon {
+  color: var(--chat-danger);
+  opacity: 1;
+}
+
+.lc-error[data-kind="unauthorized"] .lc-icon svg,
+.lc-error[data-kind="forbidden"] .lc-icon svg,
+.lc-error[data-kind="rate-limited"] .lc-icon svg {
+  stroke: var(--chat-danger);
+}
+
+.lc-error__title {
+  margin: var(--chat-space-4) 0 var(--chat-space-4);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--chat-fg);
+}
+
+.lc-error__message {
+  margin: 0 0 var(--chat-space-2);
+  opacity: 0.8;
+  line-height: 1.5;
+
+  &:last-of-type {
+    margin-block-end: 2rem;
+  }
+}
+
+.lc-error__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  margin-block-start: var(--chat-space-2);
+  padding: var(--chat-space-3) var(--chat-space-5);
+  border: 0;
+  border-radius: var(--chat-radius);
+  background: var(--chat-grad);
+  color: #ffffff;
+  font-weight: 500;
+  transition: transform 0.25s var(--chat-ease), background 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-grad-hover);
+    transform: translateY(-2px);
+  }
+
+  & .lc-icon {
+    inline-size: 1rem;
+    block-size: 1rem;
+    opacity: 1;
+    color: inherit;
+  }
+}
+
+/* ----- Floating mode (self-hosting widget) -----
+ *
+ * The element is its own fixed host: the shadow renders a round gradient FAB and
+ * an anchored panel. Offsets/z-index resolve through --chat-* tokens the host page
+ * may override.
+ */
+
+:host([floating]) {
+  --chat-fab-offset: var(--chat-space-5);
+  --chat-fab-size: 64px;
+  --chat-floating-z: 1050;
+  --chat-panel-width: 460px;
+  --chat-panel-height: min(700px, calc(100dvh - var(--chat-fab-size) - 3.5rem));
+
+  position: fixed;
+  inset: auto var(--chat-fab-offset) var(--chat-fab-offset) auto;
+  z-index: var(--chat-floating-z);
+  block-size: auto;
+}
+
+:host([floating]) .lc-fab {
+  inline-size: var(--chat-fab-size);
+  block-size: var(--chat-fab-size);
+  border: 0;
+  border-radius: 50%;
+  background: var(--chat-grad);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--chat-shadow-fab);
+  transition: transform 0.25s var(--chat-ease), background 0.25s var(--chat-ease), box-shadow 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-grad-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--chat-primary);
+    outline-offset: 3px;
+  }
+}
+
+:host([floating]) .lc-panel {
+  position: absolute;
+  inset-block-end: calc(var(--chat-fab-size) + var(--chat-space-3));
+  inset-inline-end: 0;
+  inline-size: min(var(--chat-panel-width), calc(100vw - 2 * var(--chat-space-4)));
+  block-size: var(--chat-panel-height);
+  max-block-size: calc(100dvh - var(--chat-fab-size) - 3.5rem);
+  border: 1px solid var(--chat-border);
+  border-radius: calc(var(--chat-radius-lg) * 1.5);
+  overflow: hidden;
+  background: var(--chat-bg);
+  box-shadow: var(--chat-shadow-2);
+  animation: lc-slide-up 0.4s var(--chat-ease-spring);
+}
+
+:host([floating]) .lc-panel[hidden] {
+  display: none;
+}
+
+/* closable="false" → no FAB, panel anchored where the FAB would sit. */
+:host([floating]) .lc-panel:only-child {
+  inset-block-end: 0;
+}
+
+/* Fullscreen floating panel fills the viewport. */
+:host([floating][fullscreen]) {
+  inset: 0;
+}
+
+:host([floating][fullscreen]) .lc-panel {
+  position: fixed;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  max-block-size: none;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Narrow viewport: the fixed floating panel fills the screen. */
+@media (max-width: 768px) {
+  :host([floating]) .lc-panel {
+    position: fixed;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-block-size: none;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+@keyframes lc-slide-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes lc-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lc-modal-in {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes lc-msg-appear {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes lc-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes lc-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* ----- Sidebar as overlay (narrow container OR floating non-fullscreen) -----
+ *
+ * When the widget is narrow, the open sidebar must not push the content aside (no
+ * room); it floats over it (the content column stays put) and the dimmed backdrop
+ * becomes clickable to close. The sidebar takes the full width so it does not
+ * leave an awkward sliver of the thread behind.
+ */
+
+@container chat (max-width: 640px) {
+  :host([sidebar-open]) .lc-content {
+    margin-inline-start: 0;
+  }
+
+  :host([sidebar-open]) .lc-sidebar-slot {
+    --chat-sidebar-width: 100%;
+    box-shadow: var(--chat-shadow-2);
+  }
+
+  :host([sidebar-open]) .lc-sidebar-overlay {
+    display: block;
+  }
+
+  :host([sidebar-open]) .lc-sidebar__close {
+    display: flex;
+  }
+
+  .lc-msg {
+    max-inline-size: 90%;
+  }
+}
+
+/* A floating, non-fullscreen panel is always narrow → force the overlay there
+ * regardless of the exact container width measured at first paint. */
+:host([floating]:not([fullscreen])[sidebar-open]) .lc-content {
+  margin-inline-start: 0;
+}
+
+:host([floating]:not([fullscreen])[sidebar-open]) .lc-sidebar-slot {
+  --chat-sidebar-width: 100%;
+  box-shadow: var(--chat-shadow-2);
+}
+
+:host([floating]:not([fullscreen])[sidebar-open]) .lc-sidebar-overlay {
+  display: block;
+}
+
+:host([floating]:not([fullscreen])[sidebar-open]) .lc-sidebar__close {
+  display: flex;
+}
+
+/* ----- highlight.js — GitHub light (default) ----- */
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+  color: var(--chat-code-fg);
+  background: transparent;
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  color: #d73a49;
+}
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  color: #6f42c1;
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-variable {
+  color: #005cc5;
+}
+
+.hljs-meta .hljs-string,
+.hljs-regexp,
+.hljs-string {
+  color: #032f62;
+}
+
+.hljs-built_in,
+.hljs-symbol {
+  color: #e36209;
+}
+
+.hljs-code,
+.hljs-comment,
+.hljs-formula {
+  color: #6a737d;
+}
+
+.hljs-name,
+.hljs-quote,
+.hljs-selector-pseudo,
+.hljs-selector-tag {
+  color: #22863a;
+}
+
+.hljs-subst {
+  color: #24292e;
+}
+
+.hljs-section {
+  color: #005cc5;
+  font-weight: 700;
+}
+
+.hljs-bullet {
+  color: #735c0f;
+}
+
+.hljs-emphasis {
+  color: #24292e;
+  font-style: italic;
+}
+
+.hljs-strong {
+  color: #24292e;
+  font-weight: 700;
+}
+
+.hljs-addition {
+  color: #22863a;
+  background-color: #f0fff4;
+}
+
+.hljs-deletion {
+  color: #b31d28;
+  background-color: #ffeef0;
+}
+
+/* ----- highlight.js — one-dark (dark mode) ----- */
+
+:host([dark-mode]) .hljs-doctag,
+:host([dark-mode]) .hljs-keyword,
+:host([dark-mode]) .hljs-meta .hljs-keyword,
+:host([dark-mode]) .hljs-template-tag,
+:host([dark-mode]) .hljs-template-variable,
+:host([dark-mode]) .hljs-type,
+:host([dark-mode]) .hljs-variable.language_ {
+  color: #ff7b72;
+}
+
+:host([dark-mode]) .hljs-title,
+:host([dark-mode]) .hljs-title.class_,
+:host([dark-mode]) .hljs-title.class_.inherited__,
+:host([dark-mode]) .hljs-title.function_ {
+  color: #d2a8ff;
+}
+
+:host([dark-mode]) .hljs-attr,
+:host([dark-mode]) .hljs-attribute,
+:host([dark-mode]) .hljs-literal,
+:host([dark-mode]) .hljs-meta,
+:host([dark-mode]) .hljs-number,
+:host([dark-mode]) .hljs-operator,
+:host([dark-mode]) .hljs-selector-attr,
+:host([dark-mode]) .hljs-selector-class,
+:host([dark-mode]) .hljs-selector-id,
+:host([dark-mode]) .hljs-variable {
+  color: #79c0ff;
+}
+
+:host([dark-mode]) .hljs-meta .hljs-string,
+:host([dark-mode]) .hljs-regexp,
+:host([dark-mode]) .hljs-string {
+  color: #a5d6ff;
+}
+
+:host([dark-mode]) .hljs-built_in,
+:host([dark-mode]) .hljs-symbol {
+  color: #ffa657;
+}
+
+:host([dark-mode]) .hljs-code,
+:host([dark-mode]) .hljs-comment,
+:host([dark-mode]) .hljs-formula {
+  color: #8b949e;
+}
+
+:host([dark-mode]) .hljs-name,
+:host([dark-mode]) .hljs-quote,
+:host([dark-mode]) .hljs-selector-pseudo,
+:host([dark-mode]) .hljs-selector-tag {
+  color: #7ee787;
+}
+
+:host([dark-mode]) .hljs-subst {
+  color: #e6edf3;
+}
+
+:host([dark-mode]) .hljs-section {
+  color: #79c0ff;
+  font-weight: 700;
+}
+
+:host([dark-mode]) .hljs-bullet {
+  color: #eac55f;
+}
+
+:host([dark-mode]) .hljs-emphasis {
+  color: #e6edf3;
+  font-style: italic;
+}
+
+:host([dark-mode]) .hljs-strong {
+  color: #e6edf3;
+  font-weight: 700;
+}
+
+:host([dark-mode]) .hljs-addition {
+  color: #7ee787;
+  background-color: #033a16;
+}
+
+:host([dark-mode]) .hljs-deletion {
+  color: #ff7b72;
+  background-color: #67060c;
+}
+
+/* ----- Sidebar header (logo / Conversations) ----- */
+
+.lc-sidebar__header {
+  padding: var(--chat-space-5) var(--chat-space-4) var(--chat-space-2);
+}
+
+.lc-sidebar__logo {
+  display: block;
+  max-inline-size: 160px;
+}
+
+.lc-sidebar__logo-html {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--chat-fg);
+}
+
+/* ----- Datasets notification list ----- */
+
+.lc-notif__dataset-list {
+  margin: 0;
+  padding-inline-start: 1.4rem;
+
+  & li {
+    margin-block: 0.2rem;
+  }
+}
+
+/* ----- New conversation button (input actions) ----- */
+
+/* Actions row INSIDE the bordered input wrapper, below the input row (legacy:
+ * input-actions nested in input-container). Holds the new-conversation button. */
+.lc-input-actions {
+  display: flex;
+  padding: 0 0.9rem 0.9rem;
+  animation: lc-fade-in-up 0.3s ease-out;
+
+  /* Collapse while the new-conversation button is still hidden (no conversation
+   * started yet) so an empty actions row leaves no phantom gap. */
+  &:not(:has(.lc-new-conv:not([hidden]))) {
+    display: none;
+  }
+}
+
+.lc-actions-container {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  inline-size: 100%;
+}
+
+.lc-new-conv {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chat-space-2);
+  animation: lc-fade-in-up 0.3s ease-out;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius);
+  background: transparent;
+  color: var(--chat-fg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+  cursor: pointer;
+  transition: background 0.25s var(--chat-ease), border-color 0.25s var(--chat-ease), transform 0.25s var(--chat-ease);
+
+  &:hover {
+    background: var(--chat-surface);
+    border-color: var(--chat-border-strong);
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+/* ----- Copy-message button + disclaimer ----- */
+
+.lc-msg__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--chat-space-1);
+  margin-block-start: var(--chat-space-2);
+}
+
+.lc-msg__copy {
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--chat-radius);
+  background: transparent;
+  color: var(--chat-fg);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: color 0.25s var(--chat-ease), transform 0.25s var(--chat-ease), opacity 0.25s var(--chat-ease);
+
+  &:hover {
+    color: var(--chat-link);
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  &.is-copied {
+    color: var(--chat-success);
+    opacity: 1;
+  }
+}
+
+.lc-msg__disclaimer {
+  margin-block-start: var(--chat-space-1);
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.3;
+  text-align: end;
+  color: var(--chat-fg);
+  opacity: 0.6;
+}
+
+/* ----- User avatar + dropdown menu ----- */
+
+.lc-user {
+  position: relative;
+  display: inline-block;
+}
+
+.lc-user__btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 40px;
+  block-size: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chat-link);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s var(--chat-ease-spring), box-shadow 0.3s var(--chat-ease-spring);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &.is-active {
+    background: var(--chat-btn-bg);
+    color: var(--chat-btn-text);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--chat-link);
+    outline-offset: 2px;
+  }
+}
+
+.lc-user__initials {
+  line-height: 1;
+}
+
+.lc-user__indicator {
+  position: absolute;
+  inset-block-end: -2px;
+  inset-inline-end: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 16px;
+  block-size: 16px;
+  background: var(--chat-bg);
+  border: 2px solid var(--chat-link);
+  border-radius: 50%;
+  color: var(--chat-link);
+  transition: transform 0.3s var(--chat-ease-spring);
+
+  & svg {
+    inline-size: 12px;
+    block-size: 12px;
+  }
+}
+
+.lc-user__btn.is-active .lc-user__indicator {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-user__btn,
+  .lc-user__indicator {
+    transition: none;
+  }
+}
+
+.lc-user__dropdown {
+  position: absolute;
+  inset-block-start: calc(100% + 0.75rem);
+  inset-inline-end: 0;
+  min-inline-size: 280px;
+  max-block-size: calc(100vh - 200px);
+  overflow: auto;
+  background: var(--chat-dropdown-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--chat-border);
+  border-radius: var(--chat-radius-lg);
+  box-shadow: var(--chat-shadow-2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px) scale(0.95);
+  transition: opacity 0.3s var(--chat-ease-spring), transform 0.3s var(--chat-ease-spring), visibility 0.3s;
+  z-index: 6;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lc-user__info {
+  display: flex;
+  align-items: center;
+  gap: var(--chat-space-4);
+  padding: var(--chat-space-5);
+  border-block-end: 1px solid var(--chat-border);
+}
+
+.lc-user__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: 50%;
+  background: var(--chat-link);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lc-user__details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.lc-user__name {
+  margin-block-end: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: capitalize;
+  color: var(--chat-fg);
+}
+
+.lc-user__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: var(--chat-fg);
+  opacity: 0.7;
+}
+
+.lc-user__rates {
+  padding: var(--chat-space-4) var(--chat-space-5);
+}
+
+.lc-user__rates-head h4 {
+  margin: 0 0 var(--chat-space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.lc-user__rate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.4rem;
+}
+
+.lc-user__rate-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--chat-fg);
+}
+
+.lc-user__rate-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--chat-fg);
+  opacity: 0.7;
+}
+
+/* ----- Reduced motion ----- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
